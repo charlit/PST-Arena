@@ -155,7 +155,14 @@
   }
 
   // --- Rendu style "Brawl Stars" : couleurs vives, contours épais, ombres ---
-  const CHAR_EMOJI = { fire: '\u{1F525}', sniper: '\u{1F3AF}', spread: '✨', orb: '\u{1F52E}' };
+  // Silhouettes 2D inspirées du skateur de PalmStreet (casquette streetwear +
+  // planche sous les pieds en clin d'œil), redessinées à la sauce Brawl Stars.
+  const CHAR_LOOK = {
+    fire: { cap: '#ff5e2e', brim: '#c73d10', deck: '#ff5e2e', eyes: 'fierce' },
+    sniper: { cap: '#2b2f45', brim: '#12142a', deck: '#ffcc33', eyes: 'visor', visor: '#5fe0ff' },
+    spread: { cap: '#22c399', brim: '#0f9d76', deck: '#22c399', eyes: 'happy' },
+    orb: { cap: '#7526d9', brim: '#4e1594', deck: '#9b5cff', eyes: 'mystic' },
+  };
   const OUTLINE = '#1a1a2e';
   const GRASS_A = '#7fd858';
   const GRASS_B = '#71c94c';
@@ -189,6 +196,76 @@
     c.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
     c.fillStyle = 'rgba(0,0,0,0.28)';
     c.fill();
+  }
+
+  // Petite planche à roulettes sous les pieds, clin d'œil au skateur de PalmStreet.
+  function drawSkateboardNod(c, x, y, angle, deckColor) {
+    c.save();
+    c.translate(x, y);
+    c.rotate(angle);
+    roundRectPath(c, -17, -3.5, 34, 7, 3.5);
+    c.fillStyle = deckColor;
+    c.fill();
+    c.lineWidth = 2;
+    c.strokeStyle = OUTLINE;
+    c.stroke();
+    c.fillStyle = '#ffe066';
+    [-11, 11].forEach((wx) => {
+      c.beginPath();
+      c.arc(wx, 4, 2.6, 0, Math.PI * 2);
+      c.fill();
+      c.stroke();
+    });
+    c.restore();
+  }
+
+  // Tête stylisée : casquette streetwear + visage, coloré par personnage.
+  function drawCharacterFace(c, x, y, character) {
+    const look = CHAR_LOOK[character] || CHAR_LOOK.fire;
+    const headY = y - 2;
+
+    // Casquette (dôme + visière)
+    c.beginPath();
+    c.arc(x, headY - 6, 13, Math.PI, 0);
+    c.closePath();
+    c.fillStyle = look.cap;
+    c.fill();
+    c.lineWidth = 3;
+    c.strokeStyle = OUTLINE;
+    c.stroke();
+    roundRectPath(c, x - 15, headY - 8, 30, 6, 3);
+    c.fillStyle = look.brim;
+    c.fill();
+    c.lineWidth = 2.5;
+    c.stroke();
+
+    // Visage
+    if (look.eyes === 'visor') {
+      roundRectPath(c, x - 9, headY - 1, 18, 6, 3);
+      c.fillStyle = look.visor;
+      c.fill();
+      c.lineWidth = 2;
+      c.strokeStyle = OUTLINE;
+      c.stroke();
+    } else {
+      c.fillStyle = OUTLINE;
+      const eyeDx = 5.5, eyeY = headY + 2;
+      if (look.eyes === 'fierce') {
+        c.lineWidth = 2.2;
+        c.strokeStyle = OUTLINE;
+        c.beginPath(); c.moveTo(x - eyeDx - 3, eyeY - 2); c.lineTo(x - eyeDx + 3, eyeY + 1); c.stroke();
+        c.beginPath(); c.moveTo(x + eyeDx + 3, eyeY - 2); c.lineTo(x + eyeDx - 3, eyeY + 1); c.stroke();
+      } else if (look.eyes === 'mystic') {
+        c.beginPath(); c.arc(x - eyeDx, eyeY, 2.6, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(x + eyeDx, eyeY, 2.6, 0, Math.PI * 2); c.fill();
+        c.fillStyle = '#e2c3ff';
+        c.beginPath(); c.arc(x - eyeDx + 0.8, eyeY - 0.8, 1, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(x + eyeDx + 0.8, eyeY - 0.8, 1, 0, Math.PI * 2); c.fill();
+      } else {
+        c.beginPath(); c.arc(x - eyeDx, eyeY, 2.2, 0, Math.PI * 2); c.fill();
+        c.beginPath(); c.arc(x + eyeDx, eyeY, 2.2, 0, Math.PI * 2); c.fill();
+      }
+    }
   }
 
   function draw() {
@@ -304,9 +381,11 @@
     state.players.forEach((p) => {
       const x = offX + p.x, y = offY + p.y;
       const colors = CHAR_COLORS[p.character] || { body1: '#8899cc', body2: '#445' };
+      const look = CHAR_LOOK[p.character] || CHAR_LOOK.fire;
       if (!p.alive) ctx.globalAlpha = 0.3;
 
       drawShadow(ctx, x, y + 20, 18, 7);
+      drawSkateboardNod(ctx, x, y + 17, -0.12, look.deck);
 
       // Corps : dégradé + contour épais façon "toon"
       ctx.beginPath();
@@ -320,10 +399,7 @@
       ctx.strokeStyle = p.id === myId ? '#ffe066' : OUTLINE;
       ctx.stroke();
 
-      ctx.font = '22px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(CHAR_EMOJI[p.character] || '?', x, y + 1);
+      drawCharacterFace(ctx, x, y, p.character);
       ctx.globalAlpha = 1;
 
       // Pastille de nom
