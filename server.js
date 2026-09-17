@@ -37,19 +37,19 @@ const OBSTACLES = [
 
 const CHARACTERS = {
   fire: {
-    id: 'fire', name: 'Braise', emoji: '\u{1F525}',
+    id: 'fire', name: 'Freestill', emoji: '\u{1F525}',
     projectile: { speed: 340, damage: 18, cooldown: 450, radius: 9, life: 1200, color: '#ff7a45' },
   },
   sniper: {
-    id: 'sniper', name: 'Vise', emoji: '\u{1F3AF}',
+    id: 'sniper', name: 'Maxwell', emoji: '\u{1F3AF}',
     projectile: { speed: 680, damage: 38, cooldown: 950, radius: 5, life: 1400, color: '#ffe066' },
   },
   spread: {
-    id: 'spread', name: 'Rafale', emoji: '✨',
+    id: 'spread', name: 'Keketsk8', emoji: '✨',
     projectile: { speed: 300, damage: 11, cooldown: 650, radius: 7, life: 700, color: '#63e6be', spread: 3, spreadAngle: 0.32 },
   },
   orb: {
-    id: 'orb', name: 'Spectre', emoji: '\u{1F52E}',
+    id: 'orb', name: 'Guigui', emoji: '\u{1F52E}',
     projectile: { speed: 220, damage: 15, cooldown: 550, radius: 10, life: 1600, color: '#b197fc', homing: 2.6 },
   },
 };

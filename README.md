@@ -14,10 +14,10 @@ ordinateur.
 
 | Personnage | Style de projectile |
 |---|---|
-| 🔥 Braise | Boule de feu, dégâts moyens, cadence moyenne |
-| 🎯 Vise | Tir précis rapide, gros dégâts, cadence lente |
-| ✨ Rafale | 3 projectiles en éventail, courte portée |
-| 🔮 Spectre | Projectile lent qui suit légèrement la cible la plus proche |
+| 🔥 Freestill | Boule de feu, dégâts moyens, cadence moyenne |
+| 🎯 Maxwell | Tir précis rapide, gros dégâts, cadence lente |
+| ✨ Keketsk8 | 3 projectiles en éventail, courte portée |
+| 🔮 Guigui | Projectile lent qui suit légèrement la cible la plus proche |
 
 ## Règles
 
