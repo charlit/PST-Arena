@@ -56,21 +56,32 @@ Tu dois voir `PST Arena, écoute sur le port 8085`.
 
 ## Exposer publiquement (Tailscale Funnel)
 
-Ce Mac mini héberge déjà d'autres jeux sur d'autres ports (8081, 8082,
-8083, 8084...). Pour PST Arena, on lui donne son propre port HTTPS
-Funnel dédié, sans toucher aux autres :
+**Important : Tailscale Funnel ne peut exposer que 3 ports sur
+internet : 443, 8443 et 10000** (contrainte de Tailscale, pas de ce
+projet). Sur ce Mac mini, ces trois ports sont déjà pris par les autres
+jeux (PalmStreet, SkateHangar, etc.) — un port maison comme 8085 ne
+serait donc **jamais joignable depuis l'extérieur du tailnet**, même si
+`tailscale funnel` semble démarrer sans erreur (il ne fonctionne alors
+qu'en local/sur le tailnet, pas pour un visiteur externe sur son
+téléphone).
+
+La solution : faire cohabiter PST Arena avec le jeu déjà sur le port
+443, sous un chemin dédié `/arena` (le serveur Express de PST Arena sait
+répondre aussi bien à la racine qu'à `/arena`) :
 
 ```bash
-sudo /Applications/Tailscale.app/Contents/MacOS/Tailscale funnel --bg --https=8444 8085
+sudo /Applications/Tailscale.app/Contents/MacOS/Tailscale serve --bg --set-path=/arena http://localhost:8085
 ```
 
-Le jeu sera alors accessible sur :
+(le Funnel sur le port 443 doit déjà être actif — c'est le cas ici pour
+l'autre jeu qui y tourne déjà). Le jeu sera alors accessible sur :
 ```
-https://games-carlitos.tail736807.ts.net:8444/
+https://games-carlitos.tail736807.ts.net/arena/
 ```
 
 Vérifie l'état de tous les partages actifs :
 ```bash
+sudo /Applications/Tailscale.app/Contents/MacOS/Tailscale serve status
 sudo /Applications/Tailscale.app/Contents/MacOS/Tailscale funnel status
 ```
 
