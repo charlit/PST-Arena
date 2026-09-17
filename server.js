@@ -313,10 +313,23 @@ class Room {
 const room = new Room();
 
 const app = express();
-app.use(express.static(path.join(__dirname, 'public')));
-app.get('/characters', (req, res) => {
+// Routage strict pour que /arena (redirigé) et /arena/ (servi) soient bien
+// distincts — sinon Express les traite comme identiques et /arena/ boucle
+// sur sa propre redirection.
+app.set('strict routing', true);
+
+// Servi à la racine (dev local, port dédié) ET sous /arena (déploiement en
+// chemin partagé derrière un seul Funnel Tailscale sur le port 443, les
+// ports Funnel valides — 443/8443/10000 — étant déjà pris par les autres
+// jeux du Mac mini).
+const gameRouter = express.Router();
+gameRouter.use(express.static(path.join(__dirname, 'public')));
+gameRouter.get('/characters', (req, res) => {
   res.json(Object.values(CHARACTERS).map((c) => ({ id: c.id, name: c.name, emoji: c.emoji })));
 });
+app.get('/arena', (req, res) => res.redirect(301, '/arena/'));
+app.use('/arena', gameRouter);
+app.use('/', gameRouter);
 
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });

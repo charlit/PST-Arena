@@ -69,7 +69,9 @@
 
   function connect(name, character) {
     const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-    ws = new WebSocket(proto + '//' + location.host);
+    // Reste sous le même chemin que la page (ex: /arena/) pour rester
+    // routé vers ce serveur quand le jeu est servi en sous-chemin.
+    ws = new WebSocket(proto + '//' + location.host + location.pathname);
     ws.addEventListener('open', () => {
       ws.send(JSON.stringify({ type: 'join', name, character }));
     });
