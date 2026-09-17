@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>PST Arena ⚔️</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="game"></canvas>
+
+  <div id="hud" class="hud hidden">
+    <div class="hpbar-wrap"><div id="hpbar" class="hpbar"></div></div>
+    <div class="hud-row">
+      <div id="kdCounter" class="kd">0 / 0</div>
+      <div id="playerCount" class="playercount">1 / 10</div>
+    </div>
+    <div id="boostBadge" class="boost-badge hidden">⚡ Arme améliorée</div>
+    <div id="killFeed" class="killfeed"></div>
+    <div id="respawnMsg" class="respawn-msg hidden"></div>
+  </div>
+
+  <div id="joyMove" class="joystick joystick-left"><div class="joystick-knob"></div></div>
+  <div id="joyAim" class="joystick joystick-right"><div class="joystick-knob"></div></div>
+
+  <div id="menu" class="menu">
+    <div class="menu-card">
+      <h1>⚔️ PST Arena</h1>
+      <p class="sub">Choisis ton personnage et élimine les autres joueurs.</p>
+      <input id="nameField" class="name-field" type="text" maxlength="14" placeholder="Ton pseudo" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
+      <div id="charGrid" class="char-grid"></div>
+      <button id="playBtn" class="play-btn" disabled>Entrer dans l'arène</button>
+      <div id="menuStatus" class="menu-status"></div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>

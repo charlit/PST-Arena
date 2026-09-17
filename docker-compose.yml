@@ -1,0 +1,9 @@
+services:
+  pst-arena:
+    build: .
+    container_name: pst-arena
+    restart: unless-stopped
+    ports:
+      - "8085:8085"
+    environment:
+      - PORT=8085
