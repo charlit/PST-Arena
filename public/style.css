@@ -22,6 +22,25 @@ body {
   border-right: 2px solid rgba(0,0,0,0.15);
   transition: width 0.15s ease;
 }
+.superbar-wrap {
+  margin-top: 5px;
+  width: min(260px, 54vw); height: 12px; border-radius: 8px;
+  background: #2b2b3d; border: 3px solid #1a1a2e;
+  overflow: hidden; box-shadow: 0 3px 0 rgba(0,0,0,0.35), inset 0 -3px 5px rgba(0,0,0,0.25);
+}
+.superbar {
+  height: 100%; width: 0%;
+  background: linear-gradient(180deg, #d9b8ff, #9b5cff);
+  transition: width 0.15s ease;
+}
+.superbar.ready {
+  background: linear-gradient(180deg, #ffe066, #ffb300);
+  animation: super-pulse 0.8s ease-in-out infinite;
+}
+@keyframes super-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+}
 .hud-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; width: min(260px, 54vw); }
 .kd {
   font-size: 15px; font-weight: 800; color: #fff;
@@ -37,6 +56,14 @@ body {
   border: 3px solid #1a1a2e; color: #4a2a00;
   padding: 5px 12px; border-radius: 999px;
   box-shadow: 0 3px 0 #7a4a00;
+}
+.super-badge {
+  margin-top: 8px; display: inline-block; font-size: 13px; font-weight: 800;
+  background: linear-gradient(180deg, #ffe066, #ffb300);
+  border: 3px solid #1a1a2e; color: #4a2a00;
+  padding: 5px 12px; border-radius: 999px;
+  box-shadow: 0 3px 0 #7a4a00;
+  animation: super-pulse 0.8s ease-in-out infinite;
 }
 .killfeed { position: fixed; top: 14px; right: 16px; display: flex; flex-direction: column; gap: 5px; align-items: flex-end; font-size: 12px; font-weight: 700; }
 .killfeed div {

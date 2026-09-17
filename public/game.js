@@ -8,9 +8,11 @@
   const playBtn = document.getElementById('playBtn');
   const menuStatus = document.getElementById('menuStatus');
   const hpbar = document.getElementById('hpbar');
+  const superbar = document.getElementById('superbar');
   const kdCounter = document.getElementById('kdCounter');
   const playerCountEl = document.getElementById('playerCount');
   const boostBadge = document.getElementById('boostBadge');
+  const superBadge = document.getElementById('superBadge');
   const killFeedEl = document.getElementById('killFeed');
   const respawnMsg = document.getElementById('respawnMsg');
 
@@ -361,19 +363,20 @@
       }
     });
 
-    // Projectiles : halo lumineux + noyau
+    // Projectiles : halo lumineux + noyau (dorés et plus gros pour une super)
     state.projectiles.forEach((b) => {
       const x = offX + b.x, y = offY + b.y;
+      const haloColor = b.s ? '#ffe066' : b.c;
       ctx.beginPath();
-      ctx.fillStyle = b.c + '55';
-      ctx.arc(x, y, b.r * 1.9, 0, Math.PI * 2);
+      ctx.fillStyle = haloColor + (b.s ? '88' : '55');
+      ctx.arc(x, y, b.r * (b.s ? 2.4 : 1.9), 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
       ctx.fillStyle = b.c;
       ctx.arc(x, y, b.r, 0, Math.PI * 2);
       ctx.fill();
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = OUTLINE;
+      ctx.lineWidth = b.s ? 3 : 2;
+      ctx.strokeStyle = b.s ? '#ffe066' : OUTLINE;
       ctx.stroke();
     });
 
@@ -386,6 +389,16 @@
 
       drawShadow(ctx, x, y + 20, 18, 7);
       drawSkateboardNod(ctx, x, y + 17, -0.12, look.deck);
+
+      // Anneau doré pulsant autour d'un joueur dont la super est prête
+      if (p.superReady) {
+        const pulse = 22 + Math.sin(now / 180) * 2;
+        ctx.beginPath();
+        ctx.arc(x, y, pulse, 0, Math.PI * 2);
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#ffe066';
+        ctx.stroke();
+      }
 
       // Corps : dégradé + contour épais façon "toon"
       ctx.beginPath();
@@ -443,6 +456,10 @@
       hpbar.style.width = Math.max(0, me.hp) + '%';
       kdCounter.textContent = `${me.kills} K / ${me.deaths} D`;
       boostBadge.classList.toggle('hidden', !me.boosted);
+      const superNeeded = state.arena.superHitsNeeded || 3;
+      superbar.style.width = Math.min(100, (me.superCharge / superNeeded) * 100) + '%';
+      superbar.classList.toggle('ready', !!me.superReady);
+      superBadge.classList.toggle('hidden', !me.superReady);
       if (!me.alive) {
         const secs = Math.ceil(me.respawnIn / 1000);
         respawnMsg.textContent = `ÉLIMINÉ ! Réapparition dans ${secs}s`;
