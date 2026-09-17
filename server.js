@@ -23,6 +23,11 @@ const MAX_WEAPONS = 2;
 const HEART_SPAWN_MS = 7000;
 const WEAPON_SPAWN_MS = 11000;
 const PICKUP_RADIUS = 16;
+const NORMAL_COOLDOWN = 1000;
+const SUPER_HITS_NEEDED = 3;
+const SUPER_DAMAGE_MULT = 1.6;
+const SUPER_SHOTS = 3;
+const SUPER_SPREAD_ANGLE = 0.3;
 
 // Obstacles simples (rectangles) servant de couverture, bloquent joueurs et projectiles.
 const OBSTACLES = [
@@ -37,20 +42,20 @@ const OBSTACLES = [
 
 const CHARACTERS = {
   fire: {
-    id: 'fire', name: 'Braise', emoji: '\u{1F525}',
-    projectile: { speed: 340, damage: 18, cooldown: 450, radius: 9, life: 1200, color: '#ff7a45' },
+    id: 'fire', name: 'Freestill', emoji: '\u{1F525}',
+    projectile: { speed: 340, damage: 18, radius: 9, life: 1200, color: '#ff7a45' },
   },
   sniper: {
-    id: 'sniper', name: 'Vise', emoji: '\u{1F3AF}',
-    projectile: { speed: 680, damage: 38, cooldown: 950, radius: 5, life: 1400, color: '#ffe066' },
+    id: 'sniper', name: 'Maxwell', emoji: '\u{1F3AF}',
+    projectile: { speed: 680, damage: 38, radius: 5, life: 1400, color: '#ffe066' },
   },
   spread: {
-    id: 'spread', name: 'Rafale', emoji: '✨',
-    projectile: { speed: 300, damage: 11, cooldown: 650, radius: 7, life: 700, color: '#63e6be', spread: 3, spreadAngle: 0.32 },
+    id: 'spread', name: 'Keketsk8', emoji: '✨',
+    projectile: { speed: 300, damage: 11, radius: 7, life: 700, color: '#63e6be', spread: 3, spreadAngle: 0.32 },
   },
   orb: {
-    id: 'orb', name: 'Spectre', emoji: '\u{1F52E}',
-    projectile: { speed: 220, damage: 15, cooldown: 550, radius: 10, life: 1600, color: '#b197fc', homing: 2.6 },
+    id: 'orb', name: 'Guigui', emoji: '\u{1F52E}',
+    projectile: { speed: 220, damage: 15, radius: 10, life: 1600, color: '#b197fc', homing: 2.6 },
   },
 };
 
@@ -114,6 +119,8 @@ class Room {
       lastShot: 0,
       respawnAt: 0,
       weaponBoostUntil: 0,
+      superCharge: 0,
+      superReady: false,
     };
     this.players.set(id, player);
     return player;
@@ -148,6 +155,7 @@ class Room {
           const spawn = randomSpawnPoint(PLAYER_RADIUS + 4);
           p.x = spawn.x; p.y = spawn.y;
           p.hp = PLAYER_MAX_HP; p.alive = true; p.weaponBoostUntil = 0;
+          p.superCharge = 0; p.superReady = false;
         }
         continue;
       }
@@ -181,17 +189,18 @@ class Room {
       const charDef = CHARACTERS[p.character];
       const proj = charDef.projectile;
       const boosted = now < p.weaponBoostUntil;
-      const cooldown = boosted ? proj.cooldown * 0.55 : proj.cooldown;
-      const damage = boosted ? proj.damage * 1.6 : proj.damage;
+      const cooldown = boosted ? NORMAL_COOLDOWN * 0.55 : NORMAL_COOLDOWN;
 
       if (p.input.firing && now - p.lastShot >= cooldown) {
         p.lastShot = now;
+        const useSuper = p.superReady;
+        const damage = (boosted ? proj.damage * 1.6 : proj.damage) * (useSuper ? SUPER_DAMAGE_MULT : 1);
         const baseAngle = Math.atan2(p.input.aimY, p.input.aimX);
-        const shots = proj.spread || 1;
+        const shots = useSuper ? SUPER_SHOTS : (proj.spread || 1);
+        const spreadAngle = useSuper ? SUPER_SPREAD_ANGLE : (proj.spreadAngle || 0.3);
         for (let i = 0; i < shots; i++) {
           let angle = baseAngle;
           if (shots > 1) {
-            const spreadAngle = proj.spreadAngle || 0.3;
             angle += (i - (shots - 1) / 2) * spreadAngle;
           }
           this.projectiles.push({
@@ -202,11 +211,16 @@ class Room {
             vx: Math.cos(angle) * proj.speed,
             vy: Math.sin(angle) * proj.speed,
             damage,
-            radius: proj.radius,
+            radius: useSuper ? proj.radius * 1.4 : proj.radius,
             color: proj.color,
             homing: proj.homing || 0,
             expiresAt: now + proj.life,
+            super: useSuper,
           });
+        }
+        if (useSuper) {
+          p.superReady = false;
+          p.superCharge = 0;
         }
       }
     }
@@ -249,13 +263,20 @@ class Room {
         if (Math.hypot(p.x - b.x, p.y - b.y) < PLAYER_RADIUS + b.radius) {
           p.hp -= b.damage;
           hit = true;
+          const attacker = this.players.get(b.ownerId);
+          if (attacker && !b.super) {
+            attacker.superCharge = Math.min(SUPER_HITS_NEEDED, attacker.superCharge + 1);
+            if (attacker.superCharge >= SUPER_HITS_NEEDED) {
+              attacker.superReady = true;
+              attacker.superCharge = SUPER_HITS_NEEDED;
+            }
+          }
           if (p.hp <= 0) {
             p.alive = false;
             p.deaths += 1;
             p.respawnAt = now + RESPAWN_MS;
-            const killer = this.players.get(b.ownerId);
-            if (killer) killer.kills += 1;
-            this.killFeed.push({ killer: killer ? killer.name : '?', victim: p.name, at: now });
+            if (attacker) attacker.kills += 1;
+            this.killFeed.push({ killer: attacker ? attacker.name : '?', victim: p.name, at: now });
           }
           break;
         }
@@ -269,7 +290,7 @@ class Room {
   snapshot() {
     return {
       type: 'state',
-      arena: { w: ARENA_W, h: ARENA_H, obstacles: OBSTACLES },
+      arena: { w: ARENA_W, h: ARENA_H, obstacles: OBSTACLES, superHitsNeeded: SUPER_HITS_NEEDED },
       players: Array.from(this.players.values()).map((p) => ({
         id: p.id, name: p.name, character: p.character,
         x: Math.round(p.x), y: Math.round(p.y),
@@ -277,8 +298,10 @@ class Room {
         kills: p.kills, deaths: p.deaths,
         boosted: Date.now() < p.weaponBoostUntil,
         respawnIn: p.alive ? 0 : Math.max(0, p.respawnAt - Date.now()),
+        superCharge: p.superCharge,
+        superReady: p.superReady,
       })),
-      projectiles: this.projectiles.map((b) => ({ x: Math.round(b.x), y: Math.round(b.y), r: b.radius, c: b.color })),
+      projectiles: this.projectiles.map((b) => ({ x: Math.round(b.x), y: Math.round(b.y), r: b.radius, c: b.color, s: !!b.super })),
       pickups: this.pickups.map((pk) => ({ id: pk.id, kind: pk.kind, x: pk.x, y: pk.y })),
       killFeed: this.killFeed.slice(-5),
       playerCount: this.players.size,

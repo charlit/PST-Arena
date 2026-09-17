@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>PST Arena ⚔️</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -11,11 +14,13 @@
 
   <div id="hud" class="hud hidden">
     <div class="hpbar-wrap"><div id="hpbar" class="hpbar"></div></div>
+    <div class="superbar-wrap"><div id="superbar" class="superbar"></div></div>
     <div class="hud-row">
-      <div id="kdCounter" class="kd">0 / 0</div>
+      <div id="kdCounter" class="kd">0 K / 0 D</div>
       <div id="playerCount" class="playercount">1 / 10</div>
     </div>
-    <div id="boostBadge" class="boost-badge hidden">⚡ Arme améliorée</div>
+    <div id="boostBadge" class="boost-badge hidden">⚡ ARME BOOSTÉE</div>
+    <div id="superBadge" class="super-badge hidden">💥 SUPER PRÊTE !</div>
     <div id="killFeed" class="killfeed"></div>
     <div id="respawnMsg" class="respawn-msg hidden"></div>
   </div>
@@ -25,11 +30,11 @@
 
   <div id="menu" class="menu">
     <div class="menu-card">
-      <h1>⚔️ PST Arena</h1>
-      <p class="sub">Choisis ton personnage et élimine les autres joueurs.</p>
+      <h1><span class="title-emoji">💥</span> PST ARENA</h1>
+      <p class="sub">Choisis ton combattant et élimine les autres joueurs !</p>
       <input id="nameField" class="name-field" type="text" maxlength="14" placeholder="Ton pseudo" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
       <div id="charGrid" class="char-grid"></div>
-      <button id="playBtn" class="play-btn" disabled>Entrer dans l'arène</button>
+      <button id="playBtn" class="play-btn" disabled>ENTRER DANS L'ARÈNE</button>
       <div id="menuStatus" class="menu-status"></div>
     </div>
   </div>
